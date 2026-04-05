@@ -1,0 +1,23 @@
+# Core LLM
+anthropic>=0.25.0
+
+# HTTP & APIs
+httpx>=0.27.0
+requests>=2.31.0
+
+# Data handling
+pydantic>=2.6.0
+
+# RAG — local embeddings (no external vector DB needed)
+sentence-transformers>=2.7.0
+numpy>=1.26.0
+scikit-learn>=1.4.0
+
+# Graph (co-occurrence network)
+networkx>=3.3
+
+# Output formatting
+rich>=13.7.0
+
+# XML parsing for PubMed responses
+lxml>=5.1.0
