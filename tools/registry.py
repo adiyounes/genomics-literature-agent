@@ -18,7 +18,7 @@ TOOLS = [
                     "type": "string",
                     "description":"Search query e.g. 'BRCA1 breast cancer apoptosis'"
                 },
-                "max_resultes": {
+                "max_results": {
                     "type": "integer",
                     "description": "Number of results to return. default 10, max 20"
                 },
