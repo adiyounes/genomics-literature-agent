@@ -1,8 +1,10 @@
 # Genomic Literature Mining Agent
 
-An autonomous AI agent that takes a gene, disease, or variant as input and independently mines PubMed and bioRxiv, synthesises evidence across papers, detects contradictions, and outputs a structured research summary with a gene–disease knowledge graph.
+An autonomous AI agent that takes a gene, disease, or variant as input and independently mines PubMed and bioRxiv, synthesises evidence across papers, detects contradictions, and outputs a structured research summary with a gene disease knowledge graph
 
-Built from scratch in pure Python using the Anthropic API — no agent frameworks.
+Built from scratch in pure Python
+
+IMPORTANT: NO AGENT FRAMEWORK USED TO ENSURE I FULLY GRASP THE MECHANICS OF LLM ORCHESTRATION. IMPLEMENTING THE ReAct PATTERN, RAG AND MEMORY MANAGMENT MYSELF HAS ALLOWED ME TO UNDERSTAND EXACTLY HOW THE ANTHROPIC API HANDLES MULTI STEP REASONING. THIS FOUNDATION ENSURES THAT WHEN I EVENTUALLY MOVE TO A FRAMEWORK, I UNDERSTAND WHAT IS HAPPENING UNDER THE HOOD AND CAN TROUBLESHOOT COMPLEX FAILURES
 
 ---
 
@@ -20,7 +22,7 @@ Given a query like `BRCA1 breast cancer` or `rs1799966`, the agent:
 
 ## Why no framework
 
-This agent is intentionally built without LangChain, LlamaIndex, or any other agent framework. Every concept — the agent loop, tool calling, RAG, memory — is implemented from scratch. The goal is to understand what frameworks abstract away, not to hide behind them.
+This agent is intentionally built without LangChain, LlamaIndex, or any other agent framework. Every concept, the agent loop, tool calling, RAG, memory is implemented from scratch. My goal is to understand what frameworks abstract away, not to hide behind them
 
 ## Architecture
 
