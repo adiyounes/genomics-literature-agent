@@ -7,14 +7,26 @@
 import json
 import anthropic
 from config import cfg
+import numpy as np
+import networkx as nx
 from tools.registry import TOOLS
 from tools.pubmed import search_pubmed, fetch_abstract
+from memory.state import AgentState
+from memory.graph import update_graph
+from rag.chunker import chunk_text
+from rag.embedder import embed
+from agent.reasoner import synthesise
+from outputs.formatter import format_output
 
 client = anthropic.Anthropic(api_key=cfg.anthropic_api_key)
 
-def run(query: str) -> str:
+def run(query: str) -> dict:
+
     messages = [{"role": "user", "content": query}]
     iteration = 0
+
+    state = AgentState(query=query)
+    graph = nx.Graph()
 
     while iteration < cfg.max_agent_iterations:
         iteration +=1
@@ -26,7 +38,8 @@ def run(query: str) -> str:
         )
         
         if response.stop_reason == "end_turn":
-            return response.content[0].text
+            summary = synthesise(state)
+            return format_output(summary, state, graph)
         
         tool_results = []
 
@@ -39,6 +52,16 @@ def run(query: str) -> str:
                     result = search_pubmed(**tool_input)
                 elif tool_name == "fetch_abstract":
                     result = fetch_abstract(**tool_input)
+                    if result and result["pmid"] not in state.seen_pmids:
+                        state.seen_pmids.add(result['pmid'])
+                        state.abstracts.append(result)
+                        new_chunks = chunk_text(result['abstract'])
+                        new_embeddings = embed(new_chunks)
+                        state.chunks.extend(new_chunks)
+                        state.chunk_embeddings = np.vstack(
+                                [state.chunk_embeddings, new_embeddings]
+                            )
+                        graph = update_graph(graph, result['abstract'])
                 else:
                     result = {"error": f"Unknown tool: {tool_name}"}
                 tool_results.append(
@@ -56,6 +79,7 @@ def run(query: str) -> str:
                     "content": tool_results
                 }
             )
-    
-    return "Agent reached maximum iterations without final answer"
+    summary = synthesise(state)
+    output = format_output(summary, state, graph)
+    return output
     
