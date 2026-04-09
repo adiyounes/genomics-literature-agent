@@ -5,7 +5,7 @@
 
 def chunk_text(text: str, chunk_size: int = 100, overlap: int = 20) -> list[str]:
     words = text.split()#spliting the text by words returning a list
-    chunks = []  #a list of chunks
+    chunks = []  #a list of strings
     step = chunk_size - overlap #the step we take each time we put a chunk in the chunks list
                                 #it ensures the overlap we want which is 20 words
     for i in range(0, len(words), step):
