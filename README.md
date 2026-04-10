@@ -1,4 +1,5 @@
 # Genomic Literature Mining Agent
+[![CI](https://github.com/adiyounes/genomics-literature-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/adiyounes/genomics-literature-agent/actions/workflows/ci.yml)
 
 An autonomous AI agent that takes a gene, disease, or variant as input and independently mines PubMed and bioRxiv, synthesises evidence across papers, detects contradictions, and outputs a structured research summary with a gene disease knowledge graph
 
