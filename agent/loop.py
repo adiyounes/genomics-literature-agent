@@ -17,6 +17,9 @@ from rag.chunker import chunk_text
 from rag.embedder import embed
 from agent.reasoner import synthesise
 from outputs.formatter import format_output
+from rich.console import Console
+
+console = Console()
 
 client = anthropic.Anthropic(api_key=cfg.anthropic_api_key)
 
@@ -30,12 +33,13 @@ def run(query: str) -> dict:
 
     while iteration < cfg.max_agent_iterations:
         iteration +=1
-        response = client.messages.create(
-            model=cfg.model,
-            max_tokens=1024,
-            tools=TOOLS,
-            messages=messages,
-        )
+        with console.status("[dim]Thinking...[/dim]"):
+            response = client.messages.create(
+                model=cfg.model,
+                max_tokens=1024,
+                tools=TOOLS,
+                messages=messages,
+                )
         
         if response.stop_reason == "end_turn":
             summary = synthesise(state)
@@ -49,18 +53,21 @@ def run(query: str) -> dict:
                 tool_input = block.input
             
                 if tool_name == "search_pubmed":
-                    result = search_pubmed(**tool_input)
+                    with console.status(f"[dim]Searching PubMed for '{tool_input.get('query')}'...[/dim]"):
+                        result = search_pubmed(**tool_input)
                 elif tool_name == "fetch_abstract":
-                    result = fetch_abstract(**tool_input)
+                    with console.status(f"[dim]Fetching abstract for '{tool_input.get('pmid')}'...[/dim]"):
+                        result = fetch_abstract(**tool_input)
                     if result and result["pmid"] not in state.seen_pmids:
                         state.seen_pmids.add(result['pmid'])
                         state.abstracts.append(result)
                         new_chunks = chunk_text(result['abstract'])
                         new_embeddings = embed(new_chunks)
                         state.chunks.extend(new_chunks)
-                        state.chunk_embeddings = np.vstack(
+                        if new_embeddings.size > 0:
+                            state.chunk_embeddings = np.vstack(
                                 [state.chunk_embeddings, new_embeddings]
-                            )
+                                )
                         graph = update_graph(graph, result['abstract'])
                 else:
                     result = {"error": f"Unknown tool: {tool_name}"}
