@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubunto_latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -26,6 +26,6 @@ jobs:
       
       - name: Run tests
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY}}
-          ENTREZ_EMAIL: ${{ secrets.ENTREZ_EMAIL}}
-        run: pytest test/ -v
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ENTREZ_EMAIL: ${{ secrets.ENTREZ_EMAIL }}
+        run: pytest tests/ -v
