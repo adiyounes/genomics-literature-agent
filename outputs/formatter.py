@@ -12,7 +12,7 @@ from rich.table import Table
 from rich.markdown import Markdown
 from rich import box
 
-console =Console()
+console =Console(force_terminal=True)
 
 def format_output(summary: str, state: AgentState, graph: nx.Graph) -> dict:
     return {

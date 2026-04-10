@@ -1,0 +1,9 @@
+venv/
+.env
+__pycashe__/
+*.pyc
+.git/
+.pytest_cashe/
+outputs/*.json
+rag/cashe/
+*.pkl

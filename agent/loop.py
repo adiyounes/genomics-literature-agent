@@ -19,7 +19,7 @@ from agent.reasoner import synthesise
 from outputs.formatter import format_output
 from rich.console import Console
 
-console = Console()
+console = Console(force_terminal=True)
 
 client = anthropic.Anthropic(api_key=cfg.anthropic_api_key)
 
