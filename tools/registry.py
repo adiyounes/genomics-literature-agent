@@ -72,7 +72,7 @@ TOOLS = [
             "Use this to get the official name, function summary, and chromosomal "
             "location of any gene symbol mentioned in the literature."
         ),
-        "input_scheme":{
+        "input_schema":{
             "type": "object",
             "properties": {
                 "symbol":{
@@ -80,7 +80,7 @@ TOOLS = [
                     "description": "Gene symbol for example 'BRCA1', 'TP53', 'EGFR'"
                 },
             },
-            "required":["symbole"],
+            "required":["symbol"],
         }
     }
 ]
