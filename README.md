@@ -1,65 +1,79 @@
 # Genomic Literature Mining Agent
-[![CI](https://github.com/adiyounes/genomics-literature-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/adiyounes/genomics-literature-agent/actions/workflows/ci.yml)
 
-An autonomous AI agent that takes a gene, disease, or variant as input and independently mines PubMed and bioRxiv, synthesises evidence across papers, detects contradictions, and outputs a structured research summary with a gene disease knowledge graph
+An autonomous AI agent that takes a gene and a disease as input, mines PubMed and bioRxiv, combines evidence across papers, detects contradictions, and returns a structured research summary with a gene–disease knowledge graph.
 
-Built from scratch in pure Python
+Built from scratch in pure Python using the Anthropic API, no agent frameworks.
+---
 
-IMPORTANT: NO AGENT FRAMEWORK USED TO ENSURE I FULLY GRASP THE MECHANICS OF LLM ORCHESTRATION. IMPLEMENTING THE ReAct PATTERN, RAG AND MEMORY MANAGMENT MYSELF, THIS HAS ALLOWED ME TO UNDERSTAND EXACTLY HOW THE ANTHROPIC API HANDLES MULTI STEP REASONING. THIS FOUNDATION ENSURES THAT WHEN I EVENTUALLY MOVE TO A FRAMEWORK, I UNDERSTAND WHAT IS HAPPENING UNDER THE HOOD AND CAN TROUBLESHOOT COMPLEX FAILURES
+## Why no framework
 
+This agent is built without LangChain, LlamaIndex, or any other framework. Every concept — the agent loop, tool calling, RAG, memory — is implemented from scratch. The goal was to understand what frameworks abstract away before using them.
 ---
 
 ## What it does
 
-Given a query like `BRCA1 breast cancer` or `rs1799966`, the agent:
+You give it a gene and a disease. It does the rest.
+input: BRCA1 + breast cancer
+1. Searches PubMed and bioRxiv autonomously
+2. Fetches and reads the most relevant abstracts
+3. Uses RAG to retrieve the most relevant passages from collected abstracts
+4. Combines findings across papers
+5. Flags contradictions between studies
+6. Builds a gene–gene co-occurrence graph from what it reads
+7. Returns a structured research summary with confidence scores
+output: structured summary + citations + gene co-occurrence network
+---
 
-- Searches PubMed and bioRxiv autonomously
-- Fetches and reads relevant abstracts
-- Retrieves the most relevant passages using RAG
-- Synthesises findings with confidence scores
-- Flags contradicting evidence between studies
-- Builds a gene–gene and gene–disease co-occurrence graph
-- Outputs a structured research summary with citations
+## How it works
 
-## Why no framework
+The agent runs a loop, plans, acts, observes and reflects until it has enough evidence to answer
 
-This agent is intentionally built without LangChain, LlamaIndex, or any other agent framework. Every concept, the agent loop, tool calling, RAG, memory is implemented from scratch. My goal is to understand what frameworks abstract away, not to hide behind them
-
-## Architecture
-
-```
 User query
-     │
-     ▼
- Planner        breaks query into subtasks, decides tool order
-     │
-     ▼
- Tools           search_pubmed · fetch_abstract · gene_cross_ref
-     │
-     ▼
- Observer + RAG  chunk → embed → retrieve relevant passages
-     │
-     ▼
- Reasoner        synthesise evidence, score confidence, detect contradictions
-     │
-     ▼
- Memory          conversation state · seen papers · co-occurrence graph
-     │
-     ▼
- Output          structured summary · citations · hypotheses · graph
-```
+│
+▼
+Planner         decides which tools to call and in what order
+│
+▼
+Tools           search_pubmed · fetch_abstract · search_biorxiv · lookup_gene
+│
+▼
+RAG             chunks abstracts → embeds locally → retrieves relevant passages
+│
+▼
+Memory          tracks seen papers · builds co-occurrence graph
+│
+▼
+Reasoner        synthesises evidence · scores confidence · flags contradictions
+│
+▼
+Output          structured summary · citations · gene network
 
-## Core concepts
+Every tool call is executed concurrently using async, if Claude requests multiple searches at once, they all fire simultaneously.
 
-| Concept | Where |
-|---|---|
-| Agent loop (plan → act → observe → reflect) | `agent/loop.py` |
-| Tool use / function calling | `tools/registry.py` |
-| RAG (chunk, embed, retrieve) | `rag/` |
-| Memory and state management | `memory/state.py` |
-| Gene co-occurrence graph | `memory/graph.py` |
-| Structured output | `outputs/formatter.py` |
+---
 
+## What I learned building it
+
+- How LLM tool calling works at the API level, JSON schema definitions, tool_use response blocks, tool_result messages
+- The agent loop plan → act → observe → reflect, and why messages must alternate correctly
+- RAG from scratch chunking, local embeddings with sentence transformers, cosine similarity retrieval
+- Async Python with httpx, concurrent HTTP requests, asyncio.gather(), AsyncMock for testing
+- Testing async and sync code with pytest and unittest.mock
+- Docker, containerising a Python application
+- GitHub Actions, automated CI pipeline with a live green badge
+
+---
+
+## Stack
+
+- **LLM** — Claude via the Anthropic API
+- **Embeddings** — `sentence-transformers` (runs locally, no external API)
+- **Graph** — `networkx`
+- **HTTP** — `httpx` (async)
+- **XML parsing** — `lxml`
+- **Terminal output** — `rich`
+
+---
 ## Quickstart
 
 ```bash
@@ -81,21 +95,29 @@ cp .env.example .env
 # 5. Run
 python main.py --gene BRCA1 --disease "breast cancer"
 python main.py --query "TP53 lung cancer apoptosis"
-python main.py --variant rs1799966
 ```
+
+## Docker
+
+```bash
+docker run --rm -t \
+  -e ANTHROPIC_API_KEY=your_key \
+  -e ENTREZ_EMAIL=your_email \
+  genomic-literature-agent \
+  --gene BRCA1 --disease "breast cancer"
+```
+
+---
 
 ## Project structure
-
-```
 genomics-literature-agent/
 ├── agent/
 │   ├── loop.py          # Core agent loop
-│   ├── planner.py       # Query decomposition
 │   └── reasoner.py      # Evidence synthesis
 ├── tools/
 │   ├── pubmed.py        # PubMed E-utilities API
 │   ├── biorxiv.py       # bioRxiv API
-│   ├── gene_ref.py      # NCBI Gene / UniProt
+│   ├── gene_ref.py      # NCBI Gene lookup
 │   └── registry.py      # Tool schemas for Claude
 ├── rag/
 │   ├── chunker.py       # Abstract chunking
@@ -103,27 +125,19 @@ genomics-literature-agent/
 │   └── retriever.py     # Cosine similarity retrieval
 ├── memory/
 │   ├── state.py         # Agent state
-│   └── graph.py         # Co-occurrence graph
+│   └── graph.py         # Gene co-occurrence graph
 ├── outputs/
 │   └── formatter.py     # Structured output
-├── tests/
+├── tests/               # 16 passing tests
 ├── config.py
 ├── main.py
 └── .env.example
-```
 
-## Stack
-
-- **LLM** — Claude via the Anthropic API
-- **Embeddings** — `sentence-transformers` (runs locally, no external API)
-- **Graph** — `networkx`
-- **HTTP** — `requests` / `httpx`
-- **XML parsing** — `lxml`
-- **Terminal output** — `rich`
+---
 
 ## Part of a larger system
 
-This agent is a component of a unified genomic analysis pipeline that includes pharmacogenomics, pathogenicity prediction, CRISPR simulation, and microbiome integration.
+This agent is a part of a genomic analysis pipeline that includes pharmacogenomics, pathogenicity prediction, CRISPR simulation, and microbiome integration.
 
 ## License
 
