@@ -7,13 +7,13 @@ Built from scratch in pure Python using the Anthropic API, no agent frameworks.
 
 ## Why no framework
 
-This agent is built without LangChain, LlamaIndex, or any other framework. Every concept — the agent loop, tool calling, RAG, memory — is implemented from scratch. The goal was to understand what frameworks abstract away before using them.
+This agent is built without LangChain, LlamaIndex, or any other framework. Every concept the agent loop, tool calling, RAG, memory is implemented from scratch. The goal was to understand what frameworks abstract away before using them.
 ---
 
 ## What it does
 
-You give it a gene and a disease. It does the rest.
-input: BRCA1 + breast cancer
+You give it a gene and a disease.
+0. input: BRCA1 + breast cancer
 1. Searches PubMed and bioRxiv autonomously
 2. Fetches and reads the most relevant abstracts
 3. Uses RAG to retrieve the most relevant passages from collected abstracts
@@ -21,13 +21,13 @@ input: BRCA1 + breast cancer
 5. Flags contradictions between studies
 6. Builds a gene–gene co-occurrence graph from what it reads
 7. Returns a structured research summary with confidence scores
-output: structured summary + citations + gene co-occurrence network
+8. output: structured summary + citations + gene co-occurrence network
 ---
 
 ## How it works
 
 The agent runs a loop, plans, acts, observes and reflects until it has enough evidence to answer
-
+```
 User query
 │
 ▼
@@ -47,6 +47,7 @@ Reasoner        synthesises evidence · scores confidence · flags contradiction
 │
 ▼
 Output          structured summary · citations · gene network
+```
 
 Every tool call is executed concurrently using async, if Claude requests multiple searches at once, they all fire simultaneously.
 
@@ -66,12 +67,14 @@ Every tool call is executed concurrently using async, if Claude requests multipl
 
 ## Stack
 
-- **LLM** — Claude via the Anthropic API
-- **Embeddings** — `sentence-transformers` (runs locally, no external API)
-- **Graph** — `networkx`
-- **HTTP** — `httpx` (async)
-- **XML parsing** — `lxml`
-- **Terminal output** — `rich`
+| Component | Library | Notes |
+|---|---|---|
+| LLM | `anthropic` | Claude API |
+| Embeddings | `sentence-transformers` | Runs locally, no external API |
+| Graph | `networkx` | Gene co-occurrence network |
+| HTTP | `httpx` | Async requests |
+| XML parsing | `lxml` | PubMed response parsing |
+| Terminal output | `rich` | Formatted output, tables, panels |
 
 ---
 ## Quickstart
@@ -110,6 +113,7 @@ docker run --rm -t \
 ---
 
 ## Project structure
+```
 genomics-literature-agent/
 ├── agent/
 │   ├── loop.py          # Core agent loop
@@ -132,7 +136,7 @@ genomics-literature-agent/
 ├── config.py
 ├── main.py
 └── .env.example
-
+```
 ---
 
 ## Part of a larger system
