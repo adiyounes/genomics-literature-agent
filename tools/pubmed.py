@@ -6,16 +6,15 @@
         fetch_abstract PMID -> title, abstract, authors, year
 """
 
-
-import time
-import requests
+import httpx
 from lxml import etree
 from config import cfg
+import asyncio
 
 
 BASE_URL="https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 
-def search_pubmed(query: str, max_results: int = 10,) -> list[str]:
+async def search_pubmed(query: str, max_results: int = 10,) -> list[str]:
     params = {
         "db": "pubmed",
         "term": query,
@@ -24,14 +23,20 @@ def search_pubmed(query: str, max_results: int = 10,) -> list[str]:
         "email": cfg.entrez_email,    
     }
 
-    response = requests.get(f"{BASE_URL}/esearch.fcgi", params=params)
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+                f"{BASE_URL}/esearch.fcgi", 
+                params=params,
+                timeout = 10
+            )
+        
     response.raise_for_status()
-    time.sleep(0.34)
-
+    await asyncio.sleep(0.34)
+    
     data = response.json()
     return data["esearchresult"]["idlist"]
 
-def fetch_abstract(pmid: str) -> dict:
+async def fetch_abstract(pmid: str) -> dict:
     try:
         params = {
         "db": "pubmed",
@@ -40,10 +45,15 @@ def fetch_abstract(pmid: str) -> dict:
         "rettype": "abstract", #the type of content i want just the abstract not the whole document
         "email": cfg.entrez_email,
         }
-
-        response = requests.get(f"{BASE_URL}/efetch.fcgi", params=params, timeout=10)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{BASE_URL}/efetch.fcgi", 
+                params=params, 
+                timeout=10
+            )
+        
         response.raise_for_status()
-        time.sleep(0.34)
+        await asyncio.sleep(0.34)
 
         root = etree.fromstring(response.content)
 
@@ -66,9 +76,9 @@ def fetch_abstract(pmid: str) -> dict:
             "authors": authors,
             "year": year,
         }
-    except requests.exceptions.Timeout:
+    except httpx.TimeoutException:
         print(f"Timeout fetching PMID {pmid}")
         return None
-    except requests.exceptions.HTTPError as e:
+    except httpx.HTTPStatusError as e:
         print(f"HTTP error fetching PMID {pmid}: {e}")
         return None

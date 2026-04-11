@@ -1,39 +1,53 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 from tools.registry import TOOLS
 from tools.pubmed import search_pubmed, fetch_abstract
 from memory.graph import extract_genes, update_graph
 import networkx as nx
+import pytest
 
 
-def test_search_pubmed_returns_pmids():
-    with patch("tools.pubmed.requests.get") as mock_get:
-        mock_get.return_value.json.return_value = {
-            "esearchresult" : {"idlist": ["12345", "67891"]}
-        }
-        mock_get.return_value.raise_for_status = MagicMock()
+@pytest.mark.asyncio
+async def test_search_pubmed_returns_pmids():
+    mock_response = MagicMock()
+    mock_response.raise_for_status = MagicMock()
+    mock_response.json.return_value = {
+        "esearchresult": {"idlist": ["12345", "67890"]}
+    }
 
-        result = search_pubmed("BRCA1 breast cancer")
+    with patch("tools.pubmed.httpx.AsyncClient") as mock_client:
+        mock_client.return_value.__aenter__ = AsyncMock(return_value=mock_client.return_value)
+        mock_client.return_value.__aexit__ = AsyncMock(return_value=False)
+        
+        mock_client.return_value.get = AsyncMock(return_value=mock_response)
 
-        assert result == ["12345","67891"]
+        result = await search_pubmed("BRCA1 breast cancer")
+
+        assert result == ["12345","67890"]
         assert len(result) == 2
 
+@pytest.mark.asyncio
+async def test_fetch_abstract_return_dict():
+    mock_response = MagicMock()
+    mock_response.raise_for_status = MagicMock()
+    mock_response.content = b"""
+    <PubmedArticleSet>
+        <PubmedArticle>
+            <ArticleTitle>BRCA1 and DNA repair</ArticleTitle>
+            <Abstract>
+                <AbstractText>BRCA1 repairs DNA damage.</AbstractText>
+            </Abstract>
+            <PubDate><Year>2023</Year></PubDate>
+        </PubmedArticle>
+    </PubmedArticleSet>
+    """
+    with patch("tools.pubmed.httpx.AsyncClient") as mock_client:
+        mock_client.return_value.__aenter__ = AsyncMock(return_value=mock_client.return_value)
+        mock_client.return_value.__aexit__ = AsyncMock(return_value=False)
+        mock_client.return_value.get = AsyncMock(return_value = mock_response)
 
-def test_fetch_abstract_return_dict():
-    with patch("tools.pubmed.requests.get") as mock_get:
-        mock_get.return_value.raise_for_status = MagicMock()
-        mock_get.return_value.content = b"""
-        <PubmedArticleSet>
-            <PubmedArticle>
-                <ArticleTitle>BRCA1 and DNA repair</ArticleTitle>
-                <Abstract>
-                    <AbstractText>BRCA1 repairs DNA damage.</AbstractText>
-                </Abstract>
-                <PubDate><Year>2023</Year></PubDate>
-            </PubmedArticle>
-        </PubmedArticleSet>
-        """
-        result = fetch_abstract("12345")
+        result = await fetch_abstract("12345")
+        
         assert result["pmid"] == "12345"
         assert result["title"] == "BRCA1 and DNA repair"
         assert result["year"] == "2023"

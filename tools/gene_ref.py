@@ -3,15 +3,15 @@
         gene symbol -> official name,summary, organizm and chromosomal location
 """
 
-import time
-import requests
+import httpx
 from lxml import etree
 from config import cfg
+import asyncio
 
 
 BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 
-def search_gene(symbol: str) -> str | None:
+async def search_gene(symbol: str) -> str | None:
     params = {
         "db": "gene",
         "term": f"{symbol}[sym] AND human[organism]",
@@ -19,20 +19,20 @@ def search_gene(symbol: str) -> str | None:
         "retmode": "xml",
         "email": cfg.entrez_email,
     }
-
-    response = requests.get(
-        f"{BASE_URL}/esearch.fcgi",
-        params = params,
-        timeout = 10,
-    )
-
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{BASE_URL}/esearch.fcgi",
+            params = params,
+            timeout = 10,
+        )
     response.raise_for_status()
-    time.sleep(0.34)
+    await asyncio.sleep(0.34)
+
     data = etree.fromstring(response.content)
     ids = data.findall(".//Id")
     return ids[0].text if ids else None
 
-def fetch_gene_info(gene_id: str) -> dict | None:
+async def fetch_gene_info(gene_id: str) -> dict | None:
     params ={
         "db": "gene",
         "id": gene_id,
@@ -41,14 +41,14 @@ def fetch_gene_info(gene_id: str) -> dict | None:
     }
 
     try:
-        response = requests.get(
-            f"{BASE_URL}/efetch.fcgi",
-            params = params,
-            timeout = 10
-        )
-
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{BASE_URL}/efetch.fcgi",
+                params = params,
+                timeout = 10
+            )
         response.raise_for_status()
-        time.sleep(0.34)
+        await asyncio.sleep(0.34)
         
         root = etree.fromstring(response.content)
 
@@ -66,13 +66,13 @@ def fetch_gene_info(gene_id: str) -> dict | None:
             "chromosome": chromosome,
         }
     
-    except requests.exceptions.RequestException as e:
+    except httpx.HTTPStatusError as e:
         print(f"Error fetching gene {gene_id}: {e}")
         return None
     
-def lookup_gene(symbol: str) -> dict | None:
-    gene_id = search_gene(symbol)
+async def lookup_gene(symbol: str) -> dict | None:
+    gene_id = await search_gene(symbol)
     if gene_id is not None:
-        return fetch_gene_info(gene_id)
+        return await fetch_gene_info(gene_id)
     else:
         return None

@@ -9,6 +9,7 @@ Usage:
 import argparse
 from agent.loop import run
 from outputs.formatter import print_output
+import asyncio
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -37,7 +38,7 @@ def main() -> None:
         query = " ".join(parts)
 
     print(f"\nRunning agent for: {query}\n")
-    output = run(query)
+    output = asyncio.run(run(query))
     print_output(output)
 
 
