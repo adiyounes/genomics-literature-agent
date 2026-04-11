@@ -65,4 +65,22 @@ TOOLS = [
             "required": ["query"],
         },
     },
+    {
+        "name": "lookup_gene",
+        "description": (
+            "Look up structured information about a gene from NCBI Gene database. "
+            "Use this to get the official name, function summary, and chromosomal "
+            "location of any gene symbol mentioned in the literature."
+        ),
+        "input_scheme":{
+            "type": "object",
+            "properties": {
+                "symbol":{
+                    "type": "string",
+                    "description": "Gene symbol for example 'BRCA1', 'TP53', 'EGFR'"
+                },
+            },
+            "required":["symbole"],
+        }
+    }
 ]

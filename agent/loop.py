@@ -19,6 +19,7 @@ from agent.reasoner import synthesise
 from outputs.formatter import format_output
 from rich.console import Console
 from tools.biorxiv import search_biorxiv
+from tools.gene_ref import lookup_gene
 
 console = Console(force_terminal=True)
 
@@ -62,6 +63,9 @@ def run(query: str) -> dict:
                 elif tool_name == "search_biorxiv":
                     with console.status(f"[dim]Searching bioRxiv fpr '{tool_input.get('query')}'...[/dim]"):
                         result = search_biorxiv(**tool_input)
+                elif tool_name == "lookup_gene":
+                    with console.status(f"[dim]Looking up GENE {tool_input.get('symbol')}...[/dim]"):
+                        result = lookup_gene(**tool_input)
                     if result and result["pmid"] not in state.seen_pmids:
                         state.seen_pmids.add(result['pmid'])
                         state.abstracts.append(result)
