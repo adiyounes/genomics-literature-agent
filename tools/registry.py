@@ -42,5 +42,27 @@ TOOLS = [
             },
             "required": ["pmid"]
         },
-   }
+   },
+   {
+       "name": "search_biorxiv",
+       "description":(
+            "Search bioRxiv for preprints — papers published before peer review. "
+            "Use this to find the most recent research that may not yet be on PubMed. "
+            "Returns titles, abstracts, and DOIs directly."
+       ),
+       "input_schema":{
+           "type": "object",
+           "properties":{
+               "query": {
+                    "type": "string",
+                    "description": "Search query e.g 'BRCA1 breast cancer"
+               },
+               "max_results": {
+                    "type": "integer",
+                    "description": "Number of results to return. Default 10, max 20."
+                },
+            },
+            "required": ["query"],
+        },
+    },
 ]

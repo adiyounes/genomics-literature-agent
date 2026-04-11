@@ -1,5 +1,5 @@
 """
-    PubMed E-utilities API wrapper
+    PubMed API wrapper
 
     functions:
         search_pubmed query-> list fo PMIDs

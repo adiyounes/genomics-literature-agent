@@ -18,6 +18,7 @@ from rag.embedder import embed
 from agent.reasoner import synthesise
 from outputs.formatter import format_output
 from rich.console import Console
+from tools.biorxiv import search_biorxiv
 
 console = Console(force_terminal=True)
 
@@ -58,6 +59,9 @@ def run(query: str) -> dict:
                 elif tool_name == "fetch_abstract":
                     with console.status(f"[dim]Fetching abstract for '{tool_input.get('pmid')}'...[/dim]"):
                         result = fetch_abstract(**tool_input)
+                elif tool_name == "search_biorxiv":
+                    with console.status(f"[dim]Searching bioRxiv fpr '{tool_input.get('query')}'...[/dim]"):
+                        result = search_biorxiv(**tool_input)
                     if result and result["pmid"] not in state.seen_pmids:
                         state.seen_pmids.add(result['pmid'])
                         state.abstracts.append(result)
