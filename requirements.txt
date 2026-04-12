@@ -8,7 +8,7 @@ requests>=2.31.0
 # Data handling
 pydantic>=2.6.0
 
-# RAG — local embeddings (no external vector DB needed)
+# RAG, local embeddings (no external vector DB needed)
 sentence-transformers>=2.7.0
 numpy>=1.26.0
 scikit-learn>=1.4.0
@@ -23,3 +23,7 @@ rich>=13.7.0
 lxml>=5.1.0
 
 python-dotenv>=1.0.0
+
+# Deploy
+fastapi>=0.110.0
+uvicorn>=0.29.0
