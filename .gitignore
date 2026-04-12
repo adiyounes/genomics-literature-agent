@@ -40,3 +40,6 @@ outputs/*.png
 # Embeddings cache
 rag/cache/
 *.pkl
+
+#task definition
+task-definition.json
