@@ -22,7 +22,7 @@ You give it a gene and a disease.
 3. Uses RAG to retrieve the most relevant passages from collected abstracts
 4. Combines findings across papers
 5. Flags contradictions between studies
-6. Builds a gene–gene co-occurrence graph from what it reads
+6. Builds a gene–gene co occurrence graph from what it reads
 7. Returns a structured research summary with confidence scores
 8. output: structured summary + citations + gene co-occurrence network
 ---
