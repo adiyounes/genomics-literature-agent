@@ -1,13 +1,16 @@
 # Genomic Literature Mining Agent
+---
+[![CI](https://github.com/adiyounes/genomics-literature-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/adiyounes/genomics-literature-agent/actions/workflows/ci.yml)
 
 An autonomous AI agent that takes a gene and a disease as input, mines PubMed and bioRxiv, combines evidence across papers, detects contradictions, and returns a structured research summary with a gene–disease knowledge graph.
 
 Built from scratch in pure Python using the Anthropic API, no agent frameworks.
+
 ---
 
 ## Why no framework
 
-This agent is built without LangChain, LlamaIndex, or any other framework. Every concept the agent loop, tool calling, RAG, memory is implemented from scratch. The goal was to understand what frameworks abstract away before using them.
+This agent is built without LangChain, LlamaIndex, or any other framework. Every concept the agent loop, tool calling, RAG, memory are implemented from scratch. The goal was to understand what frameworks abstract away before using them.
 ---
 
 ## What it does
@@ -62,6 +65,7 @@ Every tool call is executed concurrently using async, if Claude requests multipl
 - Testing async and sync code with pytest and unittest.mock
 - Docker, containerising a Python application
 - GitHub Actions, automated CI pipeline with a live green badge
+- AWS ECS + Fargate, deploying a containerised API to the cloud
 
 ---
 
@@ -132,7 +136,7 @@ http://54.195.19.197:8000/docs
 ---
 
 ## Project structure
-```
+```bash
 genomics-literature-agent/
 ├── agent/
 │   ├── loop.py          # Core agent loop
