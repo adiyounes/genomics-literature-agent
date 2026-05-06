@@ -122,15 +122,15 @@ The agent is deployed on AWS ECS and accessible via:
 
 ```bash
 # Health check
-curl http://54.195.19.197:8000/health
+curl http://34.243.52.170:8000/health
 
 # Run the agent
-curl -X POST http://54.195.19.197:8000/analyse \
+curl -X POST http://34.243.52.170:8000/analyse \
   -H "Content-Type: application/json" \
   -d '{"gene": "BRCA1", "disease": "breast cancer"}'
 
 # Interactive docs
-http://54.195.19.197:8000/docs
+http://34.243.52.170:8000/docs
 ```
 
 ---
