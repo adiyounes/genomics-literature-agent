@@ -116,27 +116,25 @@ docker run --rm -t \
 
 ---
 
-## LIVE API
+## Live API
 
-The agent is deployed on AWS ECS and accessible via:
+The agent is deployed on Hugging Face Spaces:
 
 ```bash
 # Health check
-curl http://54.195.19.197:8000/health
+curl https://adiyounes-genomic-literature-agent.hf.space/health
 
 # Run the agent
-curl -X POST http://54.195.19.197:8000/analyse \
+curl -X POST https://adiyounes-genomic-literature-agent.hf.space/analyse \
   -H "Content-Type: application/json" \
   -d '{"gene": "BRCA1", "disease": "breast cancer"}'
 
 # Interactive docs
-http://54.195.19.197:8000/docs
-```
+https://adiyounes-genomic-literature-agent.hf.space/docs
 
+```
 ---
 
-## Project structure
-```bash
 genomics-literature-agent/
 ├── agent/
 │   ├── loop.py          # Core agent loop
