@@ -7,7 +7,21 @@ An autonomous AI agent that takes a gene and a disease as input, mines PubMed an
 Built from scratch in pure Python using the Anthropic API, no agent frameworks.
 
 ---
+## Live Demo
+```bash
+# Health check
+curl https://adiyounes-genomic-literature-agent.hf.space/health
 
+# Run the agent
+curl -X POST https://adiyounes-genomic-literature-agent.hf.space/analyse \
+  -H "Content-Type: application/json" \
+  -d '{"gene": "BRCA1", "disease": "breast cancer"}'
+
+# Interactive docs
+https://adiyounes-genomic-literature-agent.hf.space/docs
+
+```
+---
 ## Why no framework
 
 This agent is built without LangChain, LlamaIndex, or any other framework. Every concept the agent loop, tool calling, RAG, memory are implemented from scratch. The goal was to understand what frameworks abstract away before using them.
@@ -114,25 +128,6 @@ docker run --rm -t \
   --gene BRCA1 --disease "breast cancer"
 ```
 
----
-
-## Live API
-
-The agent is deployed on Hugging Face Spaces:
-
-```bash
-# Health check
-curl https://adiyounes-genomic-literature-agent.hf.space/health
-
-# Run the agent
-curl -X POST https://adiyounes-genomic-literature-agent.hf.space/analyse \
-  -H "Content-Type: application/json" \
-  -d '{"gene": "BRCA1", "disease": "breast cancer"}'
-
-# Interactive docs
-https://adiyounes-genomic-literature-agent.hf.space/docs
-
-```
 ---
 
 genomics-literature-agent/
