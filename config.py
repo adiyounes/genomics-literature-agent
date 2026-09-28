@@ -10,6 +10,6 @@ class Config:
     entrez_email: str = os.getenv("ENTREZ_EMAIL", "")
     max_papers_per_query: int = int(os.getenv("MAX_PAPERS_PER_QUERY", "20"))
     max_agent_iterations: int = int(os.getenv("MAX_AGENT_ITERATIONS", "8"))
-    model: str = "claude-opus-4-5"
+    model: str = "claude-opus-5-5"
 
 cfg = Config()
